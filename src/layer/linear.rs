@@ -27,7 +27,7 @@ impl<const B: usize, T: Numeric, const N: usize, const M: usize> Layer<B, T, N, 
     fn new() -> Self {
         Self {
             input: Batch::<B, T, N>::zero(),
-            parameters: [[T::zero(); N]; M],
+            parameters: [[T::one(); N]; M],
         }
     }
     

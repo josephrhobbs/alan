@@ -4,7 +4,6 @@
 //! Network layer abstraction.
 
 mod linear;
-mod relu;
 
 use crate::{
     Numeric,
@@ -12,7 +11,6 @@ use crate::{
 };
 
 pub use linear::Linear;
-pub use relu::ReLU;
 
 /// Network layer abstraction.
 pub trait Layer<const B: usize, T: Numeric, const N: usize, const M: usize> {

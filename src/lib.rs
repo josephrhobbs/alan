@@ -4,6 +4,7 @@
 //!
 //! Main library.
 
+mod activation;
 mod layer;
 mod loss;
 mod numeric;
@@ -13,13 +14,26 @@ pub use crate::numeric::Numeric;
 
 pub mod optim {
     pub use crate::loss::Loss;
-    pub use crate::loss::SSELoss;
+
+    pub mod loss {
+        pub use crate::loss::CrossEntropyLoss;
+        pub use crate::loss::MSELoss;
+    }
 }
 
 pub mod network {
+    pub use crate::activation::Activation;
+
+    pub mod activation {
+        pub use crate::activation::ReLU;
+        pub use crate::activation::Softmax;
+    }
+
     pub use crate::layer::Layer;
-    pub use crate::layer::Linear;
-    pub use crate::layer::ReLU;
+
+    pub mod layer {
+        pub use crate::layer::Linear;
+    }
 }
 
 pub mod tensor {

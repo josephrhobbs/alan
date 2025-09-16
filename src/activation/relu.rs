@@ -1,17 +1,17 @@
 //! ALAN
 //! Copyright (c) 2025 J. Hobbs
 //!
-//! ReLU activation layer.
+//! ReLU activation function.
 
 use crate::{
-    layer::Layer,
+    activation::Activation,
     Numeric,
     tensor::Batch,
 };
 
 pub struct ReLU<const N: usize>;
 
-impl<const B: usize, T: Numeric, const N: usize> Layer<B, T, N, N> for ReLU<N> {
+impl<const B: usize, T: Numeric, const N: usize> Activation<B, T, N> for ReLU<N> {
     fn new() -> Self {
         Self
     }
@@ -32,7 +32,7 @@ impl<const B: usize, T: Numeric, const N: usize> Layer<B, T, N, N> for ReLU<N> {
         result
     }
 
-    fn backward(&mut self, batch: Batch<B, T, N>, _lr: T) -> Batch<B, T, N> {
+    fn backward(&self, batch: Batch<B, T, N>) -> Batch<B, T, N> {
         let mut result = Batch::<B, T, N>::zero();
 
         for b in 0..B {

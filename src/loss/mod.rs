@@ -3,14 +3,16 @@
 //!
 //! Network loss function abstraction.
 
-mod sse;
+mod mse;
+mod xent;
 
 use crate::{
     Numeric,
     tensor::Batch,
 };
 
-pub use sse::SSELoss;
+pub use mse::MSELoss;
+pub use xent::CrossEntropyLoss;
 
 /// Network loss function abstraction.
 pub trait Loss<const B: usize, T: Numeric, const N: usize> {
