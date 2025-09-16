@@ -12,15 +12,17 @@ use crate::{
 pub struct ReLU<const N: usize>;
 
 impl<const B: usize, T: Numeric, const N: usize> Layer<B, T, N, N> for ReLU<N> {
+    fn new() -> Self {
+        Self
+    }
+
     fn forward(&mut self, batch: Batch<B, T, N>) -> Batch<B, T, N> {
         let mut result = Batch::<B, T, N>::zero();
 
         for b in 0..B {
-            let input = batch[b];
-
             for i in 0..N {
-                result[b][i] = if input[i] >= T::zero() {
-                    input[i]
+                result[b][i] = if batch[b][i] >= T::zero() {
+                    batch[b][i]
                 } else {
                     T::zero()
                 };

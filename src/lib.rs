@@ -5,10 +5,16 @@
 //! Main library.
 
 mod layer;
+mod loss;
 mod numeric;
 mod tensors;
 
 pub use crate::numeric::Numeric;
+
+pub mod optim {
+    pub use crate::loss::Loss;
+    pub use crate::loss::SSELoss;
+}
 
 pub mod network {
     pub use crate::layer::Layer;

@@ -8,29 +8,45 @@ use alan::{
     network::{
         Layer,
         Linear,
-        ReLU,
+    },
+    optim::{
+        Loss,
+        SSELoss,
     },
 };
 
 #[test]
-fn test_linear_layer_relu() {
-    let t1 = Tensor::<f64, 3> ([3.0, 4.0, 5.0]);
-    let batch = Batch::<1, f64, 3> ([t1]);
+fn linear_regression() {
+    let batch = Batch::<4, f64, 2> ([
+        Tensor::<f64, 2> ([0.0, 1.0]),
+        Tensor::<f64, 2> ([1.0, 1.0]),
+        Tensor::<f64, 2> ([2.0, 1.0]),
+        Tensor::<f64, 2> ([3.0, 1.0]),
+    ]);
 
-    let mut linear_layer = Linear::<1, f64, 3, 2> {
-        input: Batch::<1, f64, 3>::zero(),
-        parameters: [
-            [-1.0, -2.0, 3.0],
-            [4.0, -5.0, -6.0],
-        ],
-    };
-    let mut relu = ReLU::<2>;
+    let labels = Batch::<4, f64, 2> ([
+        Tensor::<f64, 2> ([1.0, 1.0]),
+        Tensor::<f64, 2> ([1.5, 1.0]),
+        Tensor::<f64, 2> ([2.0, 1.0]),
+        Tensor::<f64, 2> ([2.5, 1.0]),
+    ]);
 
-    let t2 = linear_layer.forward(batch);
-    let t3 = relu.forward(t2);
+    // Initialize linear layer
+    let mut linear_layer = Linear::<4, f64, 2, 2>::new();
 
-    let t2b = relu.backward(t3, 0.01);
-    let t1b = linear_layer.backward(t2, 0.01);
+    // Initialize loss function
+    let mut loss = SSELoss::<4, f64, 2>::new();
 
-    dbg!(&linear_layer.parameters);
+    for i in 0..25 {
+        let prediction = linear_layer.forward(batch);
+
+        let l = loss.forward(prediction, labels);
+        println!("Epoch {} | SSE: {:.4}", i, l);
+
+        let t1 = loss.backward();
+        let _ = linear_layer.backward(t1, 0.05);
+    }
+
+    // Ensure loss is below 0.005
+    assert!(loss.forward(linear_layer.forward(batch), labels) < 5e-3);
 }
