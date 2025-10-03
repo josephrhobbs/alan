@@ -3,20 +3,26 @@
 //!
 //! Numeric data type abstraction.
 
-use std::ops::{
-    Add,
-    Div,
-    Mul,
-    Neg,
-    Sub,
+use std::{
+    fmt::Debug,
+    ops::{
+        Add,
+        Div,
+        Mul,
+        Neg,
+        Sub,
+    },
 };
+
+use rand;
 
 /// Numeric data type.
 /// 
 /// A data type `T` can be `Numeric` if it defines the following.
 /// - Addition over itself: `T + T -> T`
 /// - Subtraction
-pub trait Numeric: Clone + Copy + Add<Output = Self> + Mul<Output = Self> + Sub<Output = Self> + Div<Output = Self> + Neg<Output = Self> + PartialOrd {
+/// TODO
+pub trait Numeric: Clone + Copy + Add<Output = Self> + Mul<Output = Self> + Sub<Output = Self> + Div<Output = Self> + Neg<Output = Self> + PartialOrd + Debug {
     fn zero() -> Self;
 
     fn one() -> Self;
@@ -24,6 +30,8 @@ pub trait Numeric: Clone + Copy + Add<Output = Self> + Mul<Output = Self> + Sub<
     fn exp(self) -> Self;
 
     fn log(self) -> Self;
+
+    fn random() -> Self;
 }
 
 impl Numeric for f64 { 
@@ -41,5 +49,9 @@ impl Numeric for f64 {
 
     fn log(self) -> Self {
         self.ln()
+    }
+
+    fn random() -> Self {
+        rand::random()
     }
 }

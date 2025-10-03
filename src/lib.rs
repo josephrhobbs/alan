@@ -5,6 +5,9 @@
 //! Main library.
 
 mod activation;
+mod architecture;
+mod dataset;
+mod hyperparameters;
 mod layer;
 mod loss;
 mod numeric;
@@ -12,13 +15,11 @@ mod tensors;
 
 pub use crate::numeric::Numeric;
 
-pub mod optim {
-    pub use crate::loss::Loss;
+pub mod models {
+    pub use crate::architecture::Architecture;
 
-    pub mod loss {
-        pub use crate::loss::CrossEntropyLoss;
-        pub use crate::loss::MSELoss;
-    }
+    // Predefined regressors
+    pub use crate::architecture::regressors;
 }
 
 pub mod network {
@@ -36,7 +37,19 @@ pub mod network {
     }
 }
 
+pub mod optim {
+    pub use crate::hyperparameters::Hyperparameters;
+
+    pub use crate::loss::Loss;
+
+    pub mod loss {
+        pub use crate::loss::CrossEntropyLoss;
+        pub use crate::loss::MSELoss;
+    }
+}
+
 pub mod tensor {
+    pub use crate::dataset::Dataset;
     pub use crate::tensors::Tensor;
     pub use crate::tensors::Batch;
 }

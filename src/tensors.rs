@@ -10,7 +10,7 @@ use std::ops::{
 
 use crate::Numeric;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Tensor<T: Numeric, const N: usize> (pub [T; N]);
 
 impl<T: Numeric, const N: usize> Tensor<T, N> {
@@ -33,7 +33,7 @@ impl<T: Numeric, const N: usize> IndexMut<usize> for Tensor<T, N> {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Batch<const B: usize, T: Numeric, const N: usize> (pub [Tensor<T, N>; B]);
 
 impl<const B: usize, T: Numeric, const N: usize> Batch<B, T, N> {

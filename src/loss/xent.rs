@@ -23,9 +23,9 @@ impl<const B: usize, T: Numeric, const N: usize> Loss<B, T, N> for CrossEntropyL
         }
     }
 
-    fn forward(&mut self, prediction: Batch<B, T, N>, labels: Batch<B, T, N>) -> T {
-        self.prediction = prediction;
-        self.labels = labels;
+    fn forward(&mut self, prediction: &Batch<B, T, N>, labels: &Batch<B, T, N>) -> T {
+        self.prediction = *prediction;
+        self.labels = *labels;
 
         // Initialize result
         let mut loss = T::zero();

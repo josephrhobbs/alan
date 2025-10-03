@@ -25,14 +25,22 @@ pub struct Linear<const B: usize, T: Numeric, const N: usize, const M: usize> {
 impl<const B: usize, T: Numeric, const N: usize, const M: usize> Layer<B, T, N, M> for Linear<B, T, N, M> {
     /// Construct a new layer, setting all parameters to zero.
     fn new() -> Self {
+        // Initialize parameters randomly
+        let mut parameters = [[T::zero(); N]; M];
+        for i in 0..M {
+            for j in 0..N {
+                parameters[i][j] = T::random();
+            }
+        }
+
         Self {
             input: Batch::<B, T, N>::zero(),
-            parameters: [[T::one(); N]; M],
+            parameters,
         }
     }
     
-    fn forward(&mut self, batch: Batch<B, T, N>) -> Batch<B, T, M> {
-        self.input = batch;
+    fn forward(&mut self, batch: &Batch<B, T, N>) -> Batch<B, T, M> {
+        self.input = *batch;
 
         let mut result = Batch::<B, T, M>::zero();
 
@@ -49,7 +57,7 @@ impl<const B: usize, T: Numeric, const N: usize, const M: usize> Layer<B, T, N, 
         result
     }
 
-    fn backward(&mut self, batch: Batch<B, T, M>, lr: T) -> Batch<B, T, N> {
+    fn backward(&mut self, batch: &Batch<B, T, M>, lr: T) -> Batch<B, T, N> {
         // Backpropagate gradients
         let mut backward = Batch::<B, T, N>::zero();
         for b in 0..B {

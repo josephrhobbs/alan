@@ -20,7 +20,7 @@ pub trait Loss<const B: usize, T: Numeric, const N: usize> {
     fn new() -> Self;
 
     /// Complete a forward pass through this layer.
-    fn forward(&mut self, prediction: Batch<B, T, N>, labels: Batch<B, T, N>) -> T;
+    fn forward(&mut self, prediction: &Batch<B, T, N>, labels: &Batch<B, T, N>) -> T;
 
     /// Complete a backward pass through this layer.
     fn backward(&self) -> Batch<B, T, N>;
