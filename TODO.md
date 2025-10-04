@@ -7,4 +7,6 @@
 - [ ] Begin writing documentation
 - [x] Implement convolution operations for images
 - [x] Implement backpropagation for convolution
-- [ ] Implement biases in linear & convolutional layers
+- [ ] Implement biases in linear layer
+- [x] Implement biases in convolution layer
+- [ ] Implement identity activation
