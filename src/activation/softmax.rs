@@ -20,21 +20,33 @@ impl<const B: usize, T: Numeric, const N: usize> Activation<B, T, N> for Softmax
         }
     }
 
-    fn forward(&mut self, batch: Batch<B, T, N>) -> Batch<B, T, N> {
+    fn forward(&mut self, batch: &Batch<B, T, N>) -> Batch<B, T, N> {
         let mut result = Batch::<B, T, N>::zero();
         let mut denom = [T::zero(); B];
+        let mut maxval = [T::zero(); B];
 
         // TODO what about integers?
 
+        // Store max value in each batch
         for b in 0..B {
             for i in 0..N {
-                denom[b] = denom[b] + T::exp(batch[b][i]);
+                if batch[b][i] > maxval[b] {
+                    maxval[b] = batch[b][i];
+                }
+            }
+        }
+
+        // Compute denominator
+        for b in 0..B {
+            for i in 0..N {
+                denom[b] = denom[b] + T::exp(batch[b][i] - maxval[b]);
+                
             }
         }
 
         for b in 0..B {
             for i in 0..N {
-                result[b][i] = T::exp(batch[b][i]) / denom[b];
+                result[b][i] = T::exp(batch[b][i] - maxval[b]) / denom[b];
             }
         }
 
@@ -43,7 +55,7 @@ impl<const B: usize, T: Numeric, const N: usize> Activation<B, T, N> for Softmax
         result
     }
 
-    fn backward(&self, batch: Batch<B, T, N>) -> Batch<B, T, N> {
+    fn backward(&self, batch: &Batch<B, T, N>) -> Batch<B, T, N> {
         let mut result = Batch::<B, T, N>::zero();
 
         for b in 0..B {
@@ -58,6 +70,8 @@ impl<const B: usize, T: Numeric, const N: usize> Activation<B, T, N> for Softmax
                 }
             }
         }
+
+        dbg!(batch, result, self.output);
 
         result
     }

@@ -32,6 +32,40 @@ pub trait Numeric: Clone + Copy + Add<Output = Self> + Mul<Output = Self> + Sub<
     fn log(self) -> Self;
 
     fn random() -> Self;
+
+    fn tiny() -> Self;
+
+    fn neginf() -> Self;
+}
+
+impl Numeric for f32 { 
+    fn zero() -> Self {
+        0.0f32
+    }
+
+    fn one() -> Self {
+        1.0f32
+    }
+
+    fn exp(self) -> Self {
+        f32::exp(self)
+    }
+
+    fn log(self) -> Self {
+        self.ln()
+    }
+
+    fn random() -> Self {
+        rand::random()
+    }
+
+    fn tiny() -> Self {
+        1e-4
+    }
+
+    fn neginf() -> Self {
+        f32::NEG_INFINITY
+    }
 }
 
 impl Numeric for f64 { 
@@ -53,5 +87,13 @@ impl Numeric for f64 {
 
     fn random() -> Self {
         rand::random()
+    }
+
+    fn tiny() -> Self {
+        1e-4
+    }
+    
+    fn neginf() -> Self {
+        f64::NEG_INFINITY
     }
 }

@@ -3,6 +3,7 @@
 //!
 //! Network layer abstraction.
 
+mod avgpool;
 mod convolutional;
 mod linear;
 
@@ -11,6 +12,8 @@ use crate::{
     tensor::Batch,
 };
 
+pub use avgpool::AvgPool;
+pub use convolutional::Convolution;
 pub use linear::Linear;
 
 /// Network layer abstraction.

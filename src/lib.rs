@@ -18,6 +18,9 @@ pub use crate::numeric::Numeric;
 pub mod models {
     pub use crate::architecture::Architecture;
 
+    // Predefined classifiers
+    pub use crate::architecture::classifiers;
+
     // Predefined regressors
     pub use crate::architecture::regressors;
 }
@@ -33,6 +36,8 @@ pub mod network {
     pub use crate::layer::Layer;
 
     pub mod layer {
+        pub use crate::layer::AvgPool;
+        pub use crate::layer::Convolution;
         pub use crate::layer::Linear;
     }
 }

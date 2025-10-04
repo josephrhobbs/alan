@@ -20,8 +20,8 @@ pub trait Activation<const B: usize, T: Numeric, const N: usize> {
     fn new() -> Self;
 
     /// Complete a forward pass through this activation function.
-    fn forward(&mut self, batch: Batch<B, T, N>) -> Batch<B, T, N>;
+    fn forward(&mut self, batch: &Batch<B, T, N>) -> Batch<B, T, N>;
 
     /// Complete a backward pass through this activation function.
-    fn backward(&self, batch: Batch<B, T, N>) -> Batch<B, T, N>;
+    fn backward(&self, batch: &Batch<B, T, N>) -> Batch<B, T, N>;
 }

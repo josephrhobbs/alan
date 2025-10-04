@@ -3,7 +3,7 @@
 //! 
 //! Network architecture abstraction.
 
-// pub mod classifiers;
+pub mod classifiers;
 pub mod regressors;
 
 use crate::{
@@ -23,11 +23,20 @@ pub trait Architecture<const B: usize, T: Numeric, const N: usize, const M: usiz
     /// Loss function for this architecture.
     type LossFunction: Loss<B, T, M>;
 
+    /// Activation function for the output of this model.
+    type Activation: Activation<B, T, M>;
+
     /// Initialize this architecture.
     fn new() -> Self;
 
     /// Compute the forward pass of this model, returning an inference result.
     fn forward(&mut self, batch: &Batch<B, T, N>) -> Batch<B, T, M>;
+
+    /// Evaluate this model, applying the given activation.
+    fn eval(&mut self, batch: &Batch<B, T, N>) -> Batch<B, T, M> {
+        let activation = Self::Activation::new();
+        activation.forward(&self.forward(batch))
+    }
 
     /// Compute the backward pass of this model, updating all parameters.
     fn backward(&mut self, gradients: &Batch<B, T, M>, lr: T);
@@ -42,18 +51,24 @@ pub trait Architecture<const B: usize, T: Numeric, const N: usize, const M: usiz
         let mut losses = Vec::new();
 
         for _ in 0..hyperparameters.epochs {
+            // Total loss for this epoch
+            let mut total_loss = T::zero();
+
             while let Some ((data, labels)) = dataset.next() {
                 // Compute forward pass
                 let result = self.forward(&data); 
 
                 // Compute loss
                 let loss = loss_function.forward(&result, &labels);
-                losses.push(loss);
+                total_loss = total_loss + loss;
                 let gradients = loss_function.backward();
 
                 // Compute backward pass
                 self.backward(&gradients, hyperparameters.lr);
             }
+
+            // Store loss
+            losses.push(total_loss);
 
             // Refresh dataset
             dataset.refresh();

@@ -16,7 +16,7 @@ impl<const B: usize, T: Numeric, const N: usize> Activation<B, T, N> for ReLU<N>
         Self
     }
 
-    fn forward(&mut self, batch: Batch<B, T, N>) -> Batch<B, T, N> {
+    fn forward(&mut self, batch: &Batch<B, T, N>) -> Batch<B, T, N> {
         let mut result = Batch::<B, T, N>::zero();
 
         for b in 0..B {
@@ -32,7 +32,7 @@ impl<const B: usize, T: Numeric, const N: usize> Activation<B, T, N> for ReLU<N>
         result
     }
 
-    fn backward(&self, batch: Batch<B, T, N>) -> Batch<B, T, N> {
+    fn backward(&self, batch: &Batch<B, T, N>) -> Batch<B, T, N> {
         let mut result = Batch::<B, T, N>::zero();
 
         for b in 0..B {

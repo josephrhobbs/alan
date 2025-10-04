@@ -20,22 +20,34 @@ pub struct Convolution<const B: usize, T: Numeric, const W: usize, const H: usiz
     
     /// Layer kernel.
     pub kernel: [[T; K]; K],
+
+    /// Layer bias.
+    pub bias: [[T; K]; K],
+
+    /// Size of the kernel, as `T`.
+    ksq_as_t: T,
 }
 
 impl<const B: usize, T: Numeric, const W: usize, const H: usize, const N: usize, const X: usize, const Y: usize, const M: usize, const K: usize> Layer<B, T, N, M> for Convolution<B, T, W, H, N, X, Y, M, K> {
     /// Construct a new layer, setting all parameters randomly.
     fn new() -> Self {
-        // Initialize kernel randomly
+        // Initialize kernel and bias randomly
         let mut kernel = [[T::zero(); K]; K];
+        let mut bias   = [[T::zero(); K]; K];
+        let mut ksq_as_t = T::zero();
         for i in 0..K {
             for j in 0..K {
                 kernel[i][j] = T::random();
+                bias[i][j] = T::random();
+                ksq_as_t = ksq_as_t + T::one();
             }
         }
-
+    
         Self {
             input: Batch::<B, T, N>::zero(),
             kernel,
+            bias,
+            ksq_as_t,
         }
     }
     
@@ -51,7 +63,7 @@ impl<const B: usize, T: Numeric, const W: usize, const H: usize, const N: usize,
                 for j in 0..Y {
                     for kx in 0..K {
                         for ky in 0..K {
-                            result[b][j*X+i] = result[b][j*X+i] + self.kernel[ky][kx] * input[(j+ky)*W+(i+kx)];
+                            result[b][j*X+i] = result[b][j*X+i] + self.kernel[ky][kx] * input[(j+ky)*W+(i+kx)] + self.bias[ky][kx] * T::one() / self.ksq_as_t;
                         }
                     }
                 }
@@ -98,6 +110,9 @@ impl<const B: usize, T: Numeric, const W: usize, const H: usize, const N: usize,
                     for i in 0..X {
                         for j in 0..Y {
                             self.kernel[ky][kx] = self.kernel[ky][kx] - lr * input[(j+ky)*W+(i+kx)] * gradient[j*X+i];
+
+                            // Derivative of output gradient is unity wrt bias
+                            self.bias[ky][kx] = self.bias[ky][kx] - lr * gradient[j*X+i];
                         }
                     }
                 }
@@ -118,6 +133,11 @@ fn test_convolution_layer() {
         [-1.0,  0.0,  1.0],
         [-2.0,  0.0,  2.0],
         [-1.0,  0.0,  1.0],
+    ];
+    conv.bias = [
+        [ 0.0,  0.0,  0.0],
+        [ 0.0,  0.0,  0.0],
+        [ 0.0,  0.0,  0.0],
     ];
 
     // Input image
@@ -161,4 +181,12 @@ fn test_convolution_layer() {
         [-4.0, -3.0, -2.0],
     ];
     assert_eq!(conv.kernel, expected_kernel);
+
+    // Check bias
+    let expected_bias = [
+        [-9.0, -9.0, -9.0],
+        [-9.0, -9.0, -9.0],
+        [-9.0, -9.0, -9.0],
+    ];
+    assert_eq!(conv.bias, expected_bias);
 }
