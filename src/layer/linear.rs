@@ -23,7 +23,7 @@ pub struct Linear<const B: usize, T: Numeric, const N: usize, const M: usize> {
 }
 
 impl<const B: usize, T: Numeric, const N: usize, const M: usize> Layer<B, T, N, M> for Linear<B, T, N, M> {
-    /// Construct a new layer, setting all parameters to zero.
+    /// Construct a new layer, setting all parameters randomly.
     fn new() -> Self {
         // Initialize parameters randomly
         let mut parameters = [[T::zero(); N]; M];

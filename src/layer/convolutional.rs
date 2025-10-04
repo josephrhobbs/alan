@@ -51,7 +51,6 @@ impl<const B: usize, T: Numeric, const W: usize, const H: usize, const N: usize,
                 for j in 0..Y {
                     for kx in 0..K {
                         for ky in 0..K {
-                            println!("{} {} {} {}", i, j, kx, ky);
                             result[b][j*X+i] = result[b][j*X+i] + self.kernel[ky][kx] * input[(j+ky)*W+(i+kx)];
                         }
                     }
@@ -62,9 +61,50 @@ impl<const B: usize, T: Numeric, const W: usize, const H: usize, const N: usize,
         result
     }
 
-    #[allow(unused_variables)]
-    fn backward(&mut self, batch: &Batch<B, T, M>, lr: T) -> Batch<B, T, N> {
-        todo!()
+    fn backward(&mut self, gradients: &Batch<B, T, M>, lr: T) -> Batch<B, T, N> {
+        let mut result = Batch::zero();
+
+        // Compute gradients of input values
+        for b in 0..B {
+            let gradient = gradients[b];
+
+            for i in 0..W {
+                for j in 0..H {
+                    for kx in 0..K {
+                        for ky in 0..K {
+                            // NOTE we add `K` here and subtract it later to prevent
+                            // integer underflow with type `usize`
+                            let gy = j + K - ky;
+                            let gx = i + K - kx;
+                            let g = if K <= gx && gx < X+K && K <= gy && gy < Y+K {
+                                gradient[(gy-K)*X+(gx-K)]
+                            } else {
+                                T::zero()
+                            };
+                            result[b][j*W+i] = result[b][j*W+i] + self.kernel[ky][kx] * g;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Update parameters
+        for b in 0..B {
+            let input = self.input[b];
+            let gradient = gradients[b];
+
+            for kx in 0..K {
+                for ky in 0..K {
+                    for i in 0..X {
+                        for j in 0..Y {
+                            self.kernel[ky][kx] = self.kernel[ky][kx] - lr * input[(j+ky)*W+(i+kx)] * gradient[j*X+i];
+                        }
+                    }
+                }
+            }
+        }
+
+        result
     }
 }
 
@@ -96,6 +136,29 @@ fn test_convolution_layer() {
         4.0, 0.0, -4.0,
         4.0, 0.0, -4.0,
     ])]);
-
     assert_eq!(result, expected);
+
+    // Compute input gradients and expected result
+    let gradients = Batch::<1, f64, 9> ([Tensor::<f64, 9> ([
+        1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0,
+        1.0, 1.0, 1.0,
+    ])]);
+    let input_gradients = conv.backward(&gradients, 1.0);
+    let expected = Batch::<1, f64, 25> ([Tensor::<f64, 25> ([
+        -1.0, -1.0,  0.0,  1.0,  1.0,
+        -3.0, -3.0,  0.0,  3.0,  3.0,
+        -4.0, -4.0,  0.0,  4.0,  4.0,
+        -3.0, -3.0,  0.0,  3.0,  3.0,
+        -1.0, -1.0,  0.0,  1.0,  1.0,
+    ])]);
+    assert_eq!(expected, input_gradients);
+
+    // Check kernel
+    let expected_kernel = [
+        [-4.0, -3.0, -2.0],
+        [-5.0, -3.0, -1.0],
+        [-4.0, -3.0, -2.0],
+    ];
+    assert_eq!(conv.kernel, expected_kernel);
 }
