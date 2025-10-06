@@ -75,6 +75,7 @@ impl<const B: usize, T: Numeric, const W: usize, const H: usize, const N: usize,
 
     fn backward(&mut self, gradients: &Batch<B, T, M>, lr: T) -> Batch<B, T, N> {
         let mut result = Batch::zero();
+        let mut b_as_t = T::zero();
 
         // Compute gradients of input values
         for b in 0..B {
@@ -98,6 +99,7 @@ impl<const B: usize, T: Numeric, const W: usize, const H: usize, const N: usize,
                     }
                 }
             }
+            b_as_t = b_as_t + T::one();
         }
 
         // Update parameters
@@ -109,10 +111,10 @@ impl<const B: usize, T: Numeric, const W: usize, const H: usize, const N: usize,
                 for ky in 0..K {
                     for i in 0..X {
                         for j in 0..Y {
-                            self.kernel[ky][kx] = self.kernel[ky][kx] - lr * input[(j+ky)*W+(i+kx)] * gradient[j*X+i];
+                            self.kernel[ky][kx] = self.kernel[ky][kx] - lr * input[(j+ky)*W+(i+kx)] * gradient[j*X+i] * T::one() / b_as_t;
 
                             // Derivative of output gradient is unity wrt bias
-                            self.bias[ky][kx] = self.bias[ky][kx] - lr * gradient[j*X+i];
+                            self.bias[ky][kx] = self.bias[ky][kx] - lr * gradient[j*X+i] * T::one() / b_as_t;
                         }
                     }
                 }

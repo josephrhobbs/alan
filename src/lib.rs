@@ -15,6 +15,8 @@ mod tensors;
 
 pub use crate::numeric::Numeric;
 
+pub use crate::numeric::x16;
+
 pub mod models {
     pub use crate::architecture::Architecture;
 

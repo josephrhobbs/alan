@@ -40,25 +40,25 @@ fn test_linear_regressor() {
     let mut model = LinearRegressor::<4, f64>::new();
 
     // Set up hyperparameters
-    let h = Hyperparameters {epochs: 25, lr: 0.05};
+    let h = Hyperparameters {epochs: 100, lr: 0.1};
 
     // Train model
     model.train(&mut dataset, h);
 
     // New data!
-    let data = vec![
+    let data = [
         Tensor::<f64, 1> ([4.0]),
         Tensor::<f64, 1> ([5.0]),
         Tensor::<f64, 1> ([6.0]),
         Tensor::<f64, 1> ([7.0]),
     ];
-    let labels = vec![
+    let labels = [
         Tensor::<f64, 1> ([8.0]),
         Tensor::<f64, 1> ([10.0]),
         Tensor::<f64, 1> ([12.0]),
         Tensor::<f64, 1> ([14.0]),
     ];
-    let dataset = Dataset::<4, f64, 1, 1>::new(data, labels);
+    let dataset = Dataset::<4, f64, 1, 1>::new(data.into(), labels.into());
     assert!(dataset.is_some());
     let mut dataset = dataset.unwrap();
 

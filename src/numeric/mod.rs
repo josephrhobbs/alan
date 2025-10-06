@@ -3,6 +3,8 @@
 //!
 //! Numeric data type abstraction.
 
+mod fixed16;
+
 use std::{
     fmt::Debug,
     ops::{
@@ -15,6 +17,8 @@ use std::{
 };
 
 use rand;
+
+pub use fixed16::x16;
 
 /// Numeric data type.
 /// 
@@ -95,5 +99,35 @@ impl Numeric for f64 {
     
     fn neginf() -> Self {
         f64::NEG_INFINITY
+    }
+}
+
+impl Numeric for x16 { 
+    fn zero() -> Self {
+        x16::zero()
+    }
+
+    fn one() -> Self {
+        x16::one()
+    }
+
+    fn exp(self) -> Self {
+        self.exp()
+    }
+
+    fn log(self) -> Self {
+        self.log()
+    }
+
+    fn random() -> Self {
+        Self::random()
+    }
+
+    fn tiny() -> Self {
+        Self::tiny()
+    }
+    
+    fn neginf() -> Self {
+        Self::neginf()
     }
 }
