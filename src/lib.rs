@@ -29,6 +29,7 @@ pub mod network {
     pub use crate::activation::Activation;
 
     pub mod activation {
+        pub use crate::activation::Identity;
         pub use crate::activation::ReLU;
         pub use crate::activation::Softmax;
     }

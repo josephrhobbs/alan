@@ -12,7 +12,6 @@ use crate::{
             Convolution,
             Linear,
         },
-        Activation,
         Layer,
     },
     Numeric,
@@ -39,15 +38,15 @@ pub struct ImageClassifier<const B: usize, T: Numeric, const C: usize> {
 
     /// Fully connected layer
     fc1: Linear<B, T, 576, C>,
-
-    /// Softmax activation
-    softmax: Softmax<B, T, C>,
 }
 
 /// Training and inference implementation for this image classifier.
 impl<const B: usize, T: Numeric, const C: usize> Architecture<B, T, 65536, C> for ImageClassifier<B, T, C> {
     /// Mean squared error loss.
     type LossFunction = CrossEntropyLoss<B, T, C>;
+
+    /// Softmax activation head.
+    type Activation = Softmax<B, T, C>;
 
     /// Construct this regressor.
     fn new() -> Self {
@@ -57,7 +56,6 @@ impl<const B: usize, T: Numeric, const C: usize> Architecture<B, T, 65536, C> fo
             conv2: Convolution::new(),
             avgpool2: AvgPool::new(),
             fc1: Linear::new(),
-            softmax: Softmax::new(),
         }
     }
 

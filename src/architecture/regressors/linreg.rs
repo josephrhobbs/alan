@@ -6,6 +6,7 @@
 use crate::{
     architecture::Architecture,
     network::{
+        activation::Identity,
         layer::Linear,
         Layer,
     },
@@ -23,6 +24,9 @@ pub struct LinearRegressor<const B: usize, T: Numeric> {
 impl<const B: usize, T: Numeric> Architecture<B, T, 1, 1> for LinearRegressor<B, T> {
     /// Mean squared error loss.
     type LossFunction = MSELoss<B, T, 1>;
+
+    /// Identity activation
+    type Activation = Identity<1>;
 
     /// Construct this regressor.
     fn new() -> Self {

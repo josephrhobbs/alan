@@ -7,6 +7,7 @@ pub mod classifiers;
 pub mod regressors;
 
 use crate::{
+    network::Activation,
     Numeric,
     optim::{
         Hyperparameters,
@@ -19,6 +20,12 @@ use crate::{
 };
 
 /// Network architecture abstraction.
+/// 
+/// NOTE types that are `Architecture` have distinct `Architecture::forward` and
+/// `Architecture::eval` methods.  The `forward` method computes a "raw" network
+/// output over which to optimize.  The `eval` method computes a "processed" network
+/// output for later use.  The `eval` method calls the `Activation` defined in the trait.
+/// To keep these the same, use the `alan::network::activation::Identity` activation.
 pub trait Architecture<const B: usize, T: Numeric, const N: usize, const M: usize> {
     /// Loss function for this architecture.
     type LossFunction: Loss<B, T, M>;
@@ -34,7 +41,7 @@ pub trait Architecture<const B: usize, T: Numeric, const N: usize, const M: usiz
 
     /// Evaluate this model, applying the given activation.
     fn eval(&mut self, batch: &Batch<B, T, N>) -> Batch<B, T, M> {
-        let activation = Self::Activation::new();
+        let mut activation = Self::Activation::new();
         activation.forward(&self.forward(batch))
     }
 

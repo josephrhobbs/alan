@@ -18,24 +18,30 @@ pub struct Linear<const B: usize, T: Numeric, const N: usize, const M: usize> {
     /// Last network layer input.
     input: Batch<B, T, N>,
     
-    /// Layer parameters.
-    parameters: [[T; N]; M],
+    /// Layer weights.
+    weights: [[T; N]; M],
+
+    /// Layer bias.
+    bias: [T; M],
 }
 
 impl<const B: usize, T: Numeric, const N: usize, const M: usize> Layer<B, T, N, M> for Linear<B, T, N, M> {
     /// Construct a new layer, setting all parameters randomly.
     fn new() -> Self {
         // Initialize parameters randomly
-        let mut parameters = [[T::zero(); N]; M];
+        let mut weights = [[T::zero(); N]; M];
+        let mut bias    = [T::zero(); M];
         for i in 0..M {
             for j in 0..N {
-                parameters[i][j] = T::random();
+                weights[i][j] = T::random();
             }
+            bias[i] = T::random();
         }
 
         Self {
             input: Batch::<B, T, N>::zero(),
-            parameters,
+            weights,
+            bias,
         }
     }
     
@@ -49,8 +55,9 @@ impl<const B: usize, T: Numeric, const N: usize, const M: usize> Layer<B, T, N, 
 
             for i in 0..M {
                 for j in 0..N {
-                    result[b][i] = result[b][i] + self.parameters[i][j] * input[j];
+                    result[b][i] = result[b][i] + self.weights[i][j] * input[j];
                 }
+                result[b][i] = result[b][i] + self.bias[i];
             }
         }
 
@@ -60,12 +67,14 @@ impl<const B: usize, T: Numeric, const N: usize, const M: usize> Layer<B, T, N, 
     fn backward(&mut self, batch: &Batch<B, T, M>, lr: T) -> Batch<B, T, N> {
         // Backpropagate gradients
         let mut backward = Batch::<B, T, N>::zero();
+        let mut b_as_t = T::zero();
         for b in 0..B {
             for i in 0..M {
                 for j in 0..N {
-                    backward[b][j] = backward[b][j] + batch[b][i] * self.parameters[i][j];
+                    backward[b][j] = backward[b][j] + batch[b][i] * self.weights[i][j];
                 }
             }
+            b_as_t = b_as_t + T::one();
         }
 
         // Update network parameters using batch gradient descent
@@ -73,8 +82,9 @@ impl<const B: usize, T: Numeric, const N: usize, const M: usize> Layer<B, T, N, 
         for b in 0..B {
             for i in 0..M {
                 for j in 0..N {
-                    self.parameters[i][j] = self.parameters[i][j] - batch[b][i] * self.input[b][j] * lr
+                    self.weights[i][j] = self.weights[i][j] - batch[b][i] * self.input[b][j] * lr * T::one() / b_as_t;
                 }
+                self.bias[i] = self.bias[i] - batch[b][i] * lr * T::one() / b_as_t;
             }
         }
 

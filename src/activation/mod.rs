@@ -3,6 +3,7 @@
 //!
 //! Network activation function abstraction.
 
+mod identity;
 mod relu;
 mod softmax;
 
@@ -11,6 +12,7 @@ use crate::{
     tensor::Batch,
 };
 
+pub use identity::Identity;
 pub use relu::ReLU;
 pub use softmax::Softmax;
 
